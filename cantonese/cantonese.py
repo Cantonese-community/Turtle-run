@@ -1660,6 +1660,17 @@ def cantonese_pygame_init() -> None:
 
         pygame.time.delay(2)
 
+    def exec_event(event):
+        event_map = {
+                "KEYDOWN" : KEYDOWN
+            }
+        for events in pygame.event.get():
+            for my_ev in event.stack:
+                if events.type == event_map[my_ev[0]]:
+                    my_ev[1](events)
+                if events.type == pygame.QUIT: 
+                    sys.exit()
+
     def direction(obj, dir):
         if dir == "左边" or dir == "left":
             return obj.left
@@ -1706,6 +1717,7 @@ def cantonese_pygame_init() -> None:
     cantonese_func_def("屏幕校色", screen_fill)
     cantonese_func_def("摞掣", pygame_key)
     cantonese_func_def("刷新", pygame.display.flip)
+    cantonese_func_def("事件驱动", exec_event)
 
 def cantonese_lib_run(lib_name : str, path : str, use_tradition : bool) -> None:
     pa = os.path.dirname(path) # Return the last file Path
