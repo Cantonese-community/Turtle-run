@@ -552,10 +552,28 @@ class Parser(object):
                 self.skip(1)
                 node_global_new(self.Node, table)
 
-            elif self.match(kw_class_assign): 
-                if (self.get(1)[1] == kw_is or self.get(1)[1] == kw_is_2 or self.get(1)[1] == kw_is_3):
+            elif self.match(kw_class_assign):
+                kw = self.get(0)[1]
+                if kw != kw_do:
+                    self.token_except(tk = [kw_is, kw_is_2, kw_is_3], i = 1,  err = " : 濑嘢! 揾唔到 '係' " )
                     node_let_new(self.Node, self.get_value(self.get(0)), self.get_value(self.get(2)))
-                    self.skip(3) 
+                    self.skip(3)
+
+                if kw == kw_do:  
+                    self.token_except(tk = [kw_do], err = " : 濑嘢! 揾唔到 '->' ", skip = True)
+                    self.token_except(tk = [kw_begin], err = " : 濑嘢! 揾唔到 '{' ", skip = True)
+                    assign_list = []
+                    while self.tokens[self.pos][1][1] != kw_end:
+                        assign_list.append(self.tokens[self.pos][1])
+                        self.pos += 1
+                    if len(assign_list) % 3 != 0:
+                        raise Exception(" 濑嘢! 唔知你想点? 请检查你嘅赋值语句!!!")
+                    for i in range(0, len(assign_list)):
+                        k = assign_list[i][1]
+                        if k == kw_is or k == kw_is_2 or k == kw_is_3:
+                            node_let_new(self.Node, self.get_value(assign_list[i - 1]),
+                                    self.get_value(assign_list[i + 1]))
+                    self.skip(1)
 
             elif self.match(kw_assign):
                 kw = self.get(0)[1]
@@ -605,6 +623,11 @@ class Parser(object):
                         if_should_end += 1
                         stmt_if.append(self.tokens[self.pos])
                         self.pos += 1
+                    elif self.get(0)[1] == kw_assign:
+                        stmt_if.append(self.tokens[self.pos])
+                        self.pos += 1
+                        if self.tokens[self.pos][1][1] == kw_do:
+                            if_should_end += 1
                     else:
                         stmt_if.append(self.tokens[self.pos])
                         self.pos += 1
@@ -635,6 +658,11 @@ class Parser(object):
                         elif_should_end += 1
                         stmt_elif.append(self.tokens[self.pos])
                         self.pos += 1
+                    elif self.get(0)[1] == kw_assign:
+                        stmt_if.append(self.tokens[self.pos])
+                        self.pos += 1
+                        if self.tokens[self.pos][1][1] == kw_do:
+                            elif_should_end += 1
                     else:
                         stmt_elif.append(self.tokens[self.pos])
                         self.pos += 1
@@ -664,6 +692,11 @@ class Parser(object):
                         else_should_end += 1
                         stmt_else.append(self.tokens[self.pos])
                         self.pos += 1
+                    elif self.get(0)[1] == kw_assign:
+                        stmt_if.append(self.tokens[self.pos])
+                        self.pos += 1
+                        if self.tokens[self.pos][1][1] == kw_do:
+                            else_should_end += 1
                     else:
                         stmt_else.append(self.tokens[self.pos])
                         self.pos += 1
@@ -924,6 +957,11 @@ class Parser(object):
                         method_should_end += 1
                         method_stmt.append(self.tokens[self.pos])    
                         self.pos += 1
+                    elif self.get(0)[1] == kw_assign:
+                        method_stmt.append(self.tokens[self.pos])
+                        self.pos += 1
+                        if self.tokens[self.pos][1][1] == kw_do:
+                            method_should_end += 1
                     else:
                         method_stmt.append(self.tokens[self.pos])
                         self.pos += 1
@@ -1185,7 +1223,7 @@ def cantonese_lib_import(name : str) -> None:
         return "csv"
     elif name == "os" or name == "系统":
         return "os"
-    elif name == "re":
+    elif name == "re" or name == "正则匹配":
         cantonese_re_init()
         return "re"
     elif name == "urllib" or name == "网页获取":
@@ -1206,6 +1244,8 @@ def cantonese_lib_import(name : str) -> None:
     elif name == "json" or name == "json解析":
         cantonese_json_init()
         return "json"
+    elif name[ : 7] == "python-":
+        return name[7 : ]
     else:
         return "Not found"
 
@@ -1580,11 +1620,11 @@ def cantonese_pygame_init() -> None:
     def pygame_setmode(size, caption = ""):
         if caption != "":
             pygame.display.set_caption(caption)
-            return pygame.display.set_mode(size)
-        return pygame.display.set_mode(size)
+            return pygame.display.set_mode(size, 0, 32)
+        return pygame.display.set_mode(size, 0, 32)
 
     def pygame_imgload(path):
-        return pygame.image.load(path)
+        return pygame.image.load(path).convert_alpha()
 
     def pygame_move(object, speed):
         return object.move(speed)
@@ -1639,6 +1679,14 @@ def cantonese_pygame_init() -> None:
     def screen_fill(screen, color):
         screen.fill(color)
 
+    def sprite_add(group, sprite):
+        group.add(sprite)
+
+    def sprite_update(group, ticks):
+        group.update(ticks)
+
+    def sprite_draw(group, screen):
+        group.draw(screen)
 
     cantonese_func_def("屏幕老作", pygame_setmode)
     cantonese_func_def("图片老作", pygame_imgload)
@@ -1647,8 +1695,11 @@ def cantonese_pygame_init() -> None:
     cantonese_func_def("in边", object_rect)
     cantonese_func_def("上画", draw)
     cantonese_func_def("揾位", direction)
-    cantonese_func_def("画公仔", pygame.sprite.Sprite.__init__)
+    cantonese_func_def("画公仔", sprite_draw)
+    cantonese_func_def("刷新公仔", sprite_update)
     cantonese_func_def("公仔", pygame.sprite.Sprite)
+    cantonese_func_def("公仔集", pygame.sprite.Group)
+    cantonese_func_def("嚟个公仔", sprite_add)
     cantonese_func_def("计时器", pygame.time.Clock)
     cantonese_func_def("睇表", time_tick)
     cantonese_func_def("校色", pygame_color)
