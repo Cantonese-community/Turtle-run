@@ -1638,7 +1638,7 @@ def cantonese_pygame_init() -> None:
     def pygame_key(e):
         return e.key
 
-    def draw(屏幕, obj = "", obj_where = "", event = "", 颜色 = "") -> None:
+    def draw(屏幕, obj = "", obj_where = "", event = "", 颜色 = "", 位置 = "") -> None:
         if event == "":
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: 
@@ -1702,6 +1702,7 @@ def cantonese_pygame_init() -> None:
     cantonese_func_def("屏幕老作", pygame_setmode)
     cantonese_func_def("图片老作", pygame_imgload)
     cantonese_func_def("矩形老作", pygame_rectload)
+    cantonese_func_def("嚟个矩形", pygame.Rect)
     cantonese_func_def("玩跑步", pygame_move)
     cantonese_func_def("in边", object_rect)
     cantonese_func_def("上画", draw)

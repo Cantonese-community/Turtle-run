@@ -31,7 +31,7 @@
         讲嘢: -> {
             |自己嘅 frame_width| 係 宽
             |自己嘅 frame_height| 係 高
-            |自己嘅 rect| 係 |500, 500, 宽, 高|
+            |自己嘅 rect| 係 |640, 640, 宽, 高|
             |自己嘅 columns| 係 行
             |rect| 係 |喺边(自己嘅 序列图)|
             
@@ -66,7 +66,7 @@
 
     佢识得 |跑步| |x, y| -> {
         讲嘢 -> {
-            |自己嘅 rect| 係 |500 + x, 500 + y, 自己嘅 frame_width, 自己嘅 frame_height|
+            |自己嘅 rect| 係 |640 + x, 640 + y, 自己嘅 frame_width, 自己嘅 frame_height|
         }
     }
 
@@ -83,19 +83,19 @@ $ |移动| |e| 要做咩?
     Share下 y_change
     
     如果 |摞掣(e) 系 100| 嘅话 -> {
-        讲嘢: x_change 係 |x_change + 32|
+        讲嘢: x_change 係 |x_change + 64|
     }
 
     如果 |摞掣(e) 系 97| 嘅话 -> {
-        讲嘢: x_change 係 |x_change - 32|
+        讲嘢: x_change 係 |x_change - 64|
     }
 
     如果 |摞掣(e) 系 119| 嘅话 -> {
-        讲嘢: y_change 係 |y_change - 32|
+        讲嘢: y_change 係 |y_change - 64|
     }
 
     如果 |摞掣(e) 系 115| 嘅话 -> {
-        讲嘢: y_change 係 |y_change + 32|
+        讲嘢: y_change 係 |y_change + 64|
     }
 
 搞掂
