@@ -1690,6 +1690,9 @@ def cantonese_pygame_init() -> None:
     def screen_fill(screen, color):
         screen.fill(color)
 
+    def img_show(screen, img, where):
+        screen.blit(img, where)
+
     def sprite_add(group, sprite):
         group.add(sprite)
 
@@ -1699,18 +1702,24 @@ def cantonese_pygame_init() -> None:
     def sprite_draw(group, screen):
         group.draw(screen)
 
+    def sprite_kill(sprite):
+        sprite.kill()
+
     cantonese_func_def("屏幕老作", pygame_setmode)
     cantonese_func_def("图片老作", pygame_imgload)
     cantonese_func_def("矩形老作", pygame_rectload)
     cantonese_func_def("嚟个矩形", pygame.Rect)
+    cantonese_func_def("画图片", img_show)
     cantonese_func_def("玩跑步", pygame_move)
     cantonese_func_def("in边", object_rect)
     cantonese_func_def("上画", draw)
     cantonese_func_def("揾位", direction)
     cantonese_func_def("画公仔", sprite_draw)
     cantonese_func_def("刷新公仔", sprite_update)
+    cantonese_func_def("摞公仔", sprite_kill)
     cantonese_func_def("公仔", pygame.sprite.Sprite)
     cantonese_func_def("公仔集", pygame.sprite.Group)
+    cantonese_func_def("睇下撞未", pygame.sprite.spritecollide)
     cantonese_func_def("嚟个公仔", sprite_add)
     cantonese_func_def("计时器", pygame.time.Clock)
     cantonese_func_def("睇表", time_tick)
