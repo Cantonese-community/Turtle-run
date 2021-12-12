@@ -1616,6 +1616,7 @@ def cantonese_pygame_init() -> None:
     from pygame.constants import KEYDOWN
 
     pygame.init()
+    pygame.mixer.init()
 
     def pygame_setmode(size, caption = ""):
         if caption != "":
@@ -1628,6 +1629,22 @@ def cantonese_pygame_init() -> None:
         if color != "":
             img.set_colorkey((color),pygame.RLEACCEL)
         return img
+
+    def pygame_musicload(path, loop = True, start = 0.0):
+        pygame.mixer.music.load(path)
+        if loop:
+            pygame.mixer.music.play(-1, start)
+        else:
+            pygame.mixer.music.play(1, start)
+
+    def pygame_soundload(path):
+        return pygame.mixer.Sound(path)
+    
+    def pygame_sound_play(sound):
+        sound.play()
+
+    def pygame_sound_stop(sound):
+        sound.stop()
 
     def pygame_move(object, speed):
         return object.move(speed)
@@ -1714,6 +1731,10 @@ def cantonese_pygame_init() -> None:
     cantonese_func_def("图片老作", pygame_imgload)
     cantonese_func_def("矩形老作", pygame_rectload)
     cantonese_func_def("嚟个矩形", pygame.Rect)
+    cantonese_func_def("嚟首music", pygame_musicload)
+    cantonese_func_def("嚟首sound", pygame_soundload)
+    cantonese_func_def("播放", pygame_sound_play)
+    cantonese_func_def("暂停", pygame_sound_stop)
     cantonese_func_def("画图片", img_show)
     cantonese_func_def("玩跑步", pygame_move)
     cantonese_func_def("in边", object_rect)
