@@ -1502,6 +1502,7 @@ def cantonese_math_init():
     cantonese_func_def("corr", corr)
     cantonese_func_def("矩阵", Matrix)
     cantonese_func_def("点积", Matrix.matrix_multiplication)
+    cantonese_func_def("开根", math.sqrt)
 
 def cantonese_model_new(model, datatest, tab, code) -> str:
     if model == "KNN":
