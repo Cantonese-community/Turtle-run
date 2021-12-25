@@ -1343,6 +1343,7 @@ def cantonese_random_init() -> None:
     cantonese_func_def("求其啦", random.random)
     cantonese_func_def("求其int下啦", random.randint)
     cantonese_func_def("求其嚟个", random.randrange)
+    cantonese_func_def("是但拣", random.choice)
 
 def cantonese_datetime_init() -> None:
     import datetime
@@ -1742,13 +1743,13 @@ def cantonese_pygame_init() -> None:
         x1 += cos * speed
         y1 -= sin * speed
         if type == "Linear":
-            if random.randint(0,4) < 2:
+            if random.randint(0, 4) * random.randint(0,4) < 4:
                 x1 += cos * speed_x
                 y1 = tracer.y
             else:
                 x1 = tracer.x
                 y1 -= sin * speed_y
-        tracer.x, tracer.y = x1, y1
+        tracer.x, tracer.y = x1, tracer.y
 
 
     cantonese_func_def("屏幕老作", pygame_setmode)
