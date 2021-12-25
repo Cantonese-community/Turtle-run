@@ -1613,7 +1613,10 @@ def cantonese_kivy_init() -> None:
     cantonese_func_def("睇实佢", button_bind)
 
 def cantonese_pygame_init() -> None:
+    
     import pygame
+    import math
+    import random
     from pygame.constants import KEYDOWN
 
     pygame.init()
@@ -1728,6 +1731,26 @@ def cantonese_pygame_init() -> None:
     def sprite_kill(sprite):
         sprite.kill()
 
+    def sprite_trace(target, tracer, type = "", speed = 3, speed_y = 16, speed_x = 16):
+        x1, y1 = tracer.x, tracer.y
+        x2, y2 = target[0], target[1] # TODO use target.x
+        dx = x2 - x1
+        dy = y1 - y2
+        r = math.sqrt(math.pow(dx,2) + math.pow(dy,2))
+        sin = dy / r
+        cos = dx / r
+        x1 += cos * speed
+        y1 -= sin * speed
+        if type == "Linear":
+            if random.randint(0,4) < 2:
+                x1 += cos * speed_x
+                y1 = tracer.y
+            else:
+                x1 = tracer.x
+                y1 -= sin * speed_y
+        tracer.x, tracer.y = x1, y1
+
+
     cantonese_func_def("屏幕老作", pygame_setmode)
     cantonese_func_def("图片老作", pygame_imgload)
     cantonese_func_def("矩形老作", pygame_rectload)
@@ -1748,6 +1771,7 @@ def cantonese_pygame_init() -> None:
     cantonese_func_def("公仔集", pygame.sprite.Group)
     cantonese_func_def("睇下撞未", pygame.sprite.collide_rect)
     cantonese_func_def("嚟个公仔", sprite_add)
+    cantonese_func_def("跟踪", sprite_trace)
     cantonese_func_def("计时器", pygame.time.Clock)
     cantonese_func_def("睇表", time_tick)
     cantonese_func_def("校色", pygame_color)
