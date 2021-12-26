@@ -1301,11 +1301,18 @@ def cantonese_lib_init() -> None:
     def list_get(lst : list, index : int):
         return lst[index]
 
+    def lst_range(lst : list, range_lst : list, loss) -> bool:
+        for i in lst:
+            if i[0] - loss < range_lst[0] and i[1] + loss > range_lst[1]:
+                return True  
+
+
     cantonese_func_def("最尾", get_list_end)
     cantonese_func_def("身位", where)
     cantonese_func_def("挜位", lst_insert)
     cantonese_func_def("排头位", get_list_beg)
     cantonese_func_def("摞位", list_get)
+    cantonese_func_def("check范围", lst_range)
 
     cantonese_func_def("唔啱", False)
     cantonese_func_def("啱", True)
@@ -1753,6 +1760,7 @@ def cantonese_pygame_init() -> None:
         sprite.kill()
 
     def sprite_trace(target, tracer, type = "", speed = 3, speed_y = 16, speed_x = 16):
+        """
         x1, y1 = tracer.x, tracer.y
         x2, y2 = target[0], target[1] # TODO use target.x
         dx = x2 - x1
@@ -1764,15 +1772,17 @@ def cantonese_pygame_init() -> None:
         cos = dx / r
         x1 += cos * speed
         y1 -= sin * speed
+        """
         if type == "Linear":
-            if random.randint(0, 4) * random.randint(0,4) < 4:
-                x1 += cos * speed_x
-                y1 = tracer.y
-            else:
-                x1 = tracer.x
-                y1 -= sin * speed_y
-        tracer.x, tracer.y = x1, tracer.y
-
+            dx, dy = target[0] - tracer.x, target[1] - tracer.y
+            dist = math.hypot(dx, dy)
+            dx, dy = dx / dist, dy / dist  # Normalize.
+            # Move along this normalized vector towards the player at current speed.
+            """
+            tracer.x += dx * speed
+            tracer.y += dy * speed
+            """
+            return (dx * speed, dy * speed)
 
     cantonese_func_def("屏幕老作", pygame_setmode)
     cantonese_func_def("图片老作", pygame_imgload)
