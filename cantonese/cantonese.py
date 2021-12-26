@@ -1622,6 +1622,7 @@ def cantonese_pygame_init() -> None:
 
     pygame.init()
     pygame.mixer.init()
+    pygame.font.init()
 
     def pygame_setmode(size, caption = ""):
         if caption != "":
@@ -1714,6 +1715,25 @@ def cantonese_pygame_init() -> None:
     def pygame_rectload(屏幕, 颜色, X, Y, H = 20, W = 20):
         pygame.draw.rect(屏幕, 颜色, pygame.Rect(X, Y, H, W))
 
+    def pygame_gif_show(屏幕, 序列, pos = (0, 0), delay = 100):
+        for i in 序列:
+            屏幕.blit(i, pos)
+            pygame.time.delay(delay)
+            pygame.display.update()
+
+    def text_objects(text, font, color = (255,255,255)):
+        textSurface = font.render(text, True, color)
+        return textSurface, textSurface.get_rect()
+
+    def pygame_text_show(screen, text, display_width = 1088, display_height = 704,
+                         style = 'freesansbold.ttf', delay = 100):
+        largeText = pygame.font.Font(style, 115)
+        TextSurf, TextRect = text_objects(text, largeText)
+        TextRect.center = ((display_width / 2), (display_height / 2))
+        screen.blit(TextSurf, TextRect)
+        pygame.time.delay(delay)
+        pygame.display.update()
+
     def screen_fill(screen, color):
         screen.fill(color)
 
@@ -1738,6 +1758,8 @@ def cantonese_pygame_init() -> None:
         dx = x2 - x1
         dy = y1 - y2
         r = math.sqrt(math.pow(dx,2) + math.pow(dy,2))
+        if r == 0:
+            r = 0.1
         sin = dy / r
         cos = dx / r
         x1 += cos * speed
@@ -1754,8 +1776,10 @@ def cantonese_pygame_init() -> None:
 
     cantonese_func_def("屏幕老作", pygame_setmode)
     cantonese_func_def("图片老作", pygame_imgload)
+    cantonese_func_def("动图老作", pygame_gif_show)
     cantonese_func_def("矩形老作", pygame_rectload)
     cantonese_func_def("嚟个矩形", pygame.Rect)
+    cantonese_func_def("写隻字", pygame_text_show)
     cantonese_func_def("嚟首music", pygame_musicload)
     cantonese_func_def("嚟首sound", pygame_soundload)
     cantonese_func_def("播放", pygame_sound_play)
@@ -1775,11 +1799,13 @@ def cantonese_pygame_init() -> None:
     cantonese_func_def("跟踪", sprite_trace)
     cantonese_func_def("计时器", pygame.time.Clock)
     cantonese_func_def("睇表", time_tick)
+    cantonese_func_def("延时", pygame.time.delay)
     cantonese_func_def("校色", pygame_color)
     cantonese_func_def("屏幕校色", screen_fill)
     cantonese_func_def("摞掣", pygame_key)
     cantonese_func_def("刷新", pygame.display.flip)
     cantonese_func_def("事件驱动", exec_event)
+    cantonese_func_def("Say拜拜", pygame.quit)
 
 def cantonese_lib_run(lib_name : str, path : str, use_tradition : bool) -> None:
     pa = os.path.dirname(path) # Return the last file Path
