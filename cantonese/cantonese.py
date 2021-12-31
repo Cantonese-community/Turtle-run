@@ -1301,10 +1301,16 @@ def cantonese_lib_init() -> None:
     def list_get(lst : list, index : int):
         return lst[index]
 
-    def lst_range(lst : list, range_lst : list, loss) -> bool:
-        for i in lst:
-            if i[0] - loss < range_lst[0] and i[1] + loss > range_lst[1]:
-                return True  
+    def lst_range(lst : list, range_lst : list, loss, types = 1, func = None, func_ret = None) -> bool:
+        if types == 2:
+            for i in lst:
+                if i - loss <= range_lst and i + loss >= range_lst:
+                    return True
+
+        else:
+            for i in lst:
+                if i[0] - loss <= range_lst[0] and i[1] + loss >= range_lst[1]:
+                    return True  
 
 
     cantonese_func_def("最尾", get_list_end)
