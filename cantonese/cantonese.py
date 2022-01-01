@@ -1734,18 +1734,20 @@ def cantonese_pygame_init() -> None:
             pygame.time.delay(delay)
             pygame.display.update()
 
-    def text_objects(text, font, color = (255,255,255)):
+    def text_objects(text, font, color):
         textSurface = font.render(text, True, color)
         return textSurface, textSurface.get_rect()
 
-    def pygame_text_show(screen, text, display_width = 1088, display_height = 704,
-                         style = 'freesansbold.ttf', delay = 100):
-        largeText = pygame.font.Font(style, 115)
-        TextSurf, TextRect = text_objects(text, largeText)
-        TextRect.center = ((display_width / 2), (display_height / 2))
+    def pygame_text_show(screen, text, display_x, display_y,
+                         style = 'freesansbold.ttf', _delay = 100, size = 115,
+                         color = (255,255,255), update = True):
+        largeText = pygame.font.Font(style, size)
+        TextSurf, TextRect = text_objects(text, largeText, color)
+        TextRect.center = (display_x, display_y)
         screen.blit(TextSurf, TextRect)
-        pygame.time.delay(delay)
-        pygame.display.update()
+        pygame.time.delay(_delay)
+        if update:
+            pygame.display.update()
 
     def screen_fill(screen, color):
         screen.fill(color)
@@ -1781,7 +1783,7 @@ def cantonese_pygame_init() -> None:
         """
         if type == "Linear":
             dx, dy = target[0] - tracer.x, target[1] - tracer.y
-            dist = math.hypot(dx, dy)
+            dist = math.hypot(dx, dy) + 0.1
             dx, dy = dx / dist, dy / dist  # Normalize.
             # Move along this normalized vector towards the player at current speed.
             """
