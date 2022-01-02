@@ -450,6 +450,9 @@ def node_stack_new(Node : list, name) -> None:
 def node_global_new(Node : list, global_table) -> None:
     Node.append(["node_global", global_table])
 
+def node_del_new(Node : list, var) -> None:
+    Node.append(["node_del", var])
+
 """
     Parser for cantonese Token List
 """
@@ -551,6 +554,11 @@ class Parser(object):
                 table = self.get_value(self.get(0))
                 self.skip(1)
                 node_global_new(self.Node, table)
+
+            elif self.match(kw_del):
+                var = self.get_value(self.get(0))
+                self.skip(1)
+                node_del_new(self.Node, var)
 
             elif self.match(kw_class_assign):
                 kw = self.get(0)[1]
@@ -1041,6 +1049,10 @@ def run(Nodes : list, TAB = '', label = '', path = '') -> None:
         if node[0] == "node_global":
             check(TAB)
             TO_PY_CODE += TAB + "global " + node[1][1] + "\n"
+
+        if node[0] == "node_del":
+            check(TAB)
+            TO_PY_CODE += TAB + "del " + node[1][1] + "\n"
         
         if node[0] == "node_let":
             check(TAB)
@@ -1908,6 +1920,7 @@ kw_class_init = "佢有啲咩"
 kw_self = "自己嘅"
 kw_call_begin = "下"
 kw_get_value = "@" 
+kw_del = "delete下"
 
 keywords = (
     kw_print,
@@ -1969,7 +1982,8 @@ keywords = (
     kw_class_init,
     kw_self,
     kw_call_begin,
-    kw_get_value
+    kw_get_value,
+    kw_del
 )
 
 tr_kw_print = "畀我睇下"
@@ -2031,7 +2045,8 @@ tr_kw_mod_new = "過嚟估下"
 tr_kw_class_init = "佢有啲咩"
 tr_kw_self = "自己嘅"
 tr_kw_call_begin = "下"
-tr_kw_get_value = "@" 
+tr_kw_get_value = "@"
+tr_kw_del = "揼低"
 
 traditional_keywords = (
     tr_kw_print,
@@ -2093,12 +2108,14 @@ traditional_keywords = (
     tr_kw_class_init,
     tr_kw_self,
     tr_kw_call_begin,
-    tr_kw_get_value
+    tr_kw_get_value,
+    tr_kw_del
 )
 
 dump_ast = False
 dump_lex = False
 to_js = False
+mkfile = False
 
 def cantonese_run(code : str, is_to_py : bool, file : str, use_tradition : bool) -> None:
     
@@ -2127,6 +2144,11 @@ def cantonese_run(code : str, is_to_py : bool, file : str, use_tradition : bool)
     cantonese_lib_init()
     if is_to_py:
         print(TO_PY_CODE)
+    
+    if mkfile:
+        f = open(file[: len(file) - 10] + '.py', 'w', encoding = 'utf-8')
+        f.write(TO_PY_CODE)
+    
     if debug:
         import dis
         print(dis.dis(TO_PY_CODE))
@@ -3027,7 +3049,7 @@ class 交互(cmd.Cmd):
 
 
 def 开始交互():
-    交互().cmdloop("早晨！")
+    交互().cmdloop("早晨!")
 
 def main():
     arg_parser = argparse.ArgumentParser()
@@ -3047,6 +3069,7 @@ def main():
     arg_parser.add_argument("-lex", action = "store_true")
     arg_parser.add_argument("-debug", action = "store_true")
     arg_parser.add_argument("-v", action = "store_true")
+    arg_parser.add_argument("-mkfile", action = "store_true")
     args = arg_parser.parse_args()
 
     global use_tradition
@@ -3054,6 +3077,7 @@ def main():
     global dump_lex
     global to_js
     global debug
+    global mkfile
 
     if args.v:
         print("0.0.7")
@@ -3095,6 +3119,8 @@ def main():
                 exit(1)
             if args.to_js:
                 to_js = True
+            if args.mkfile:
+                mkfile = True
             if args.to_asm:
                 Cantonese_asm_run(code, args.file)
             cantonese_run(code, is_to_py, args.file, use_tradition)
