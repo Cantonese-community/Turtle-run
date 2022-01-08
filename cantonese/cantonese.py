@@ -25,6 +25,7 @@ class lexer(object):
         self.re_id = r"^[_\d\w]+|^[\u4e00-\u9fa5]+"
         self.re_str = r"(?s)(^'(\\\\|\\'|\\\n|\\z\s*|[^'\n])*')|(^\"(\\\\|\\\"|\\\n|\\z\s*|[^\"\n])*\")"
         self.re_expr = r"[|](.*?)[|]"
+        self.re_python_expr = r"[~][\S\s]*[#]"
         self.re_callfunc = r"[&](.*?)[)]"
         self.op = r'(?P<op>(相加){1}|(加){1}|(减){1}|(乘){1}|(整除){1}|(除){1}|(余){1}|(异或){1}|(取反){1}|(左移){1}|(右移){1}'\
         r'(与){1}(或者){1}|(或){1}|(系){1})|(同埋){1}|(自己嘅){1}|(比唔上){1}|(喺){1}'
@@ -101,6 +102,9 @@ class lexer(object):
     def scan_expr(self):
         return self.scan(self.re_expr)
 
+    def scan_python_expr(self):
+        return self.scan(self.re_python_expr)
+
     def scan_number(self):
         return self.scan(self.re_number)
 
@@ -138,6 +142,10 @@ class lexer(object):
            token = self.trans(token, self.make_rep(self.bif_get_code, self.bif_gen_code))
            token = self.trans(token, self.make_rep(self.op_get_code, self.op_gen_code))
            return [self.line, ['expr', token]]
+
+        if c == '~':
+            token = self.scan_python_expr()
+            return [self.line, ['py_expr', token]]
 
         if c == '-':
             if self.check('->'):
@@ -346,6 +354,9 @@ def node_return_new(Node : list, v) -> None:
           value
     """
     Node.append(["node_return", v])
+
+def node_py_expr_new(Node : list, expr) -> None:
+    Node.append(["node_py_expr", expr])
 
 def node_try_new(Node : list, try_part) -> None:
     """
@@ -667,7 +678,7 @@ class Parser(object):
                         stmt_elif.append(self.tokens[self.pos])
                         self.pos += 1
                     elif self.get(0)[1] == kw_assign:
-                        stmt_if.append(self.tokens[self.pos])
+                        stmt_elif.append(self.tokens[self.pos])
                         self.pos += 1
                         if self.tokens[self.pos][1][1] == kw_do:
                             elif_should_end += 1
@@ -836,6 +847,10 @@ class Parser(object):
 
             elif self.match(kw_return):
                 node_return_new(self.Node, self.get_value(self.get(0)))
+                self.skip(1)
+
+            elif self.match(kw_get_value):
+                node_py_expr_new(self.Node, self.get_value(self.get(0)))
                 self.skip(1)
             
             elif self.match(kw_try):
@@ -1125,6 +1140,10 @@ def run(Nodes : list, TAB = '', label = '', path = '') -> None:
         if node[0] == "node_return":
             check(TAB)
             TO_PY_CODE += TAB + "return " + node[1][1] + "\n"
+
+        if node[0] == "node_py_expr":
+            check(TAB)
+            TO_PY_CODE += TAB + node[1][1][1 : -1] + "\n"
         
         if node[0] == "node_list":
             check(TAB)
@@ -1803,12 +1822,51 @@ def cantonese_pygame_init() -> None:
             tracer.y += dy * speed
             """
             return (dx * speed, dy * speed)
+    """
+        display_width : width of the screen
+        display_height : height of the screen
+    """
+
+    class Button(object):
+        def __init__(self, text, color, screen,
+                    display_width = 1200, display_height = 600, 
+                     x = None, y = None, **kwargs):
+            # self.surface = font.render(text, True, color)
+            font = pygame.font.Font('freesansbold.ttf', 58)
+            self.surface = text_objects(text, font, color)[0]
+            self.WIDTH = self.surface.get_width()
+            self.HEIGHT = self.surface.get_height()
+            self.screen = screen
+            self.display_width = display_width
+            self.display_height = display_height
+            self.x = x
+            self.y = y
+
+        def display(self):
+            self.screen.blit(self.surface, (self.x, self.y))
+
+        # For Chinese API
+        def 老作(self):
+            self.screen.blit(self.surface, (self.x, self.y))
+
+        def check_click(self, position):
+            x_match = position[0] > self.x and position[0] < self.x + self.WIDTH
+            y_match = position[1] > self.y and position[1] < self.y + self.HEIGHT
+
+            if x_match and y_match:
+                return True
+            else:
+                return False
+        
+        def 点击(self, position):
+            return self.check_click(position)
 
     cantonese_func_def("屏幕老作", pygame_setmode)
     cantonese_func_def("图片老作", pygame_imgload)
     cantonese_func_def("动图老作", pygame_gif_show)
     cantonese_func_def("矩形老作", pygame_rectload)
     cantonese_func_def("嚟个矩形", pygame.Rect)
+    cantonese_func_def("嚟个按钮", Button)
     cantonese_func_def("写隻字", pygame_text_show)
     cantonese_func_def("嚟首music", pygame_musicload)
     cantonese_func_def("嚟首sound", pygame_soundload)
@@ -1833,6 +1891,7 @@ def cantonese_pygame_init() -> None:
     cantonese_func_def("校色", pygame_color)
     cantonese_func_def("屏幕校色", screen_fill)
     cantonese_func_def("摞掣", pygame_key)
+    cantonese_func_def("check下鼠标", pygame.mouse.get_pos)
     cantonese_func_def("刷新", pygame.display.flip)
     cantonese_func_def("事件驱动", exec_event)
     cantonese_func_def("Say拜拜", pygame.quit)
